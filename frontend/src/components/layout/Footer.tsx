@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { SparklesIcon } from 'lucide-react';
+import { Logo } from '../ui/Logo';
 const columns = [
 {
   title: 'For candidates',
@@ -72,17 +73,9 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
-            <Link to="/" className="flex items-center gap-2.5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-brand-600 text-white shadow-md shadow-brand-500/20">
-                <SparklesIcon className="h-5 w-5" />
-              </span>
-              <span className="font-display text-xl font-black text-white">
-                Talenta
-              </span>
-            </Link>
+            <Logo to="/" size="md" />
             <p className="mt-4 max-w-xs text-sm text-slate-400">
-              AI-powered recruitment that connects people with the roles where
-              they'll thrive.
+              Intelligent career navigation and hiring platform connecting visionaries with top teams worldwide.
             </p>
           </div>
           {columns.map((col) =>
@@ -105,7 +98,7 @@ export function Footer() {
         </div>
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-slate-800/80 pt-6 sm:flex-row">
           <p className="text-sm text-slate-500">
-            © 2026 Talenta, Inc. All rights reserved.
+            © 2026 Wayfare Global, Inc. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm text-slate-500">
             <Link to="/" className="hover:text-slate-300">

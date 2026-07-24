@@ -89,7 +89,7 @@ export function CandidateDrawer({
     setTimeout(() => {
       setEmailSubject(`Next Steps — ${candidate.role} Interview Schedule`);
       setEmailBody(
-        `Dear ${candidate.name},\n\nThank you for your interest in the ${candidate.role} role at TalentPortal.\n\nBased on your background and skills (${candidate.skills.slice(0, 3).join(', ')}), we would love to move forward and invite you for a 30-minute interview discussion.\n\nPlease reply with your preferred availability for this week.\n\nWarm regards,\nTalent Acquisition Team`
+        `Dear ${candidate.name},\n\nThank you for your interest in the ${candidate.role} role at Wayfare Global.\n\nBased on your background and skills (${candidate.skills.slice(0, 3).join(', ')}), we would love to move forward and invite you for a 30-minute interview discussion.\n\nPlease reply with your preferred availability for this week.\n\nWarm regards,\nTalent Acquisition Team`
       );
       setAiGenerating(false);
     }, 600);

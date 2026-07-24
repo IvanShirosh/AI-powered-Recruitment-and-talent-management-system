@@ -182,7 +182,7 @@ function buildMessages(
   msgs.push({
     id: 'system-platform',
     category: 'system',
-    sender: 'TalentPortal AI',
+    sender: 'Wayfare AI',
     senderInitials: 'AI',
     senderColor: 'bg-brand-100 text-brand-700',
     subject: 'Platform activity summary',
@@ -197,7 +197,7 @@ function buildMessages(
     msgs.push({
       id: 'system-interviews',
       category: 'system',
-      sender: 'TalentPortal AI',
+      sender: 'Wayfare AI',
       senderInitials: 'AI',
       senderColor: 'bg-brand-100 text-brand-700',
       subject: `${interviews.length} interview${interviews.length > 1 ? 's' : ''} scheduled this week`,

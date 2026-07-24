@@ -4,6 +4,7 @@ using backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -123,9 +124,23 @@ builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer((document, context, _) =>
     {
-        document.Info.Title = "TalentPortal AI — Recruitment API";
+        document.Info.Title = "Wayfare AI — Recruitment API";
         document.Info.Version = "v1";
         document.Info.Description = "Backend API for the AI-Powered Recruitment and Talent Management Platform.";
+
+        var securityScheme = new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            Name = "Authorization",
+            Description = "Enter JWT token"
+        };
+
+        document.Components ??= new OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+        document.Components.SecuritySchemes["Bearer"] = securityScheme;
+
         return Task.CompletedTask;
     });
 });
@@ -145,13 +160,17 @@ if (app.Environment.IsDevelopment())
 
 if (app.Environment.IsDevelopment())
 {
-
     app.MapOpenApi();
 
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/openapi/v1.json", "Wayfare AI API v1");
+        options.RoutePrefix = "swagger";
+    });
 
     app.MapScalarApiReference(options =>
     {
-        options.Title = "TalentPortal AI API";
+        options.Title = "Wayfare AI API";
         options.Theme = ScalarTheme.DeepSpace;
         options.AddPreferredSecuritySchemes("Bearer");
     });

@@ -289,7 +289,7 @@ namespace backend.Services
                         var eventBody = new
                         {
                             summary = $"Interview: {candidateName} - {jobTitle}",
-                            description = $"Role: {jobTitle}\nCandidate: {candidateName}\nFormat: {interview.InterviewType}\nMeeting Link: {interview.MeetingLink}\nNotes: {interview.Notes}\nScheduled via TalentPortal AI Platform",
+                            description = $"Role: {jobTitle}\nCandidate: {candidateName}\nFormat: {interview.InterviewType}\nMeeting Link: {interview.MeetingLink}\nNotes: {interview.Notes}\nScheduled via Wayfare AI Recruitment Platform",
                             location = string.IsNullOrWhiteSpace(interview.MeetingLink) ? interview.Location : interview.MeetingLink,
                             start = new { dateTime = startUtc.ToString("yyyy-MM-ddTHH:mm:ssZ") },
                             end = new { dateTime = endUtc.ToString("yyyy-MM-ddTHH:mm:ssZ") }
@@ -392,7 +392,7 @@ namespace backend.Services
             {
                 detailsSb.AppendLine($"Notes / Focus: {interview.Notes}");
             }
-            detailsSb.AppendLine($"Scheduled via TalentPortal AI Recruitment Platform");
+            detailsSb.AppendLine($"Scheduled via Wayfare AI Recruitment Platform");
 
             var location = !string.IsNullOrWhiteSpace(interview.MeetingLink)
                 ? interview.MeetingLink

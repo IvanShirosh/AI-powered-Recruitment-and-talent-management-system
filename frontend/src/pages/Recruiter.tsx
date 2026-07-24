@@ -114,7 +114,7 @@ function toRecruiterCandidate(applicant: JobApplicant, jobId?: string): Recruite
     applied: formatAppliedAt(applicant.appliedAt),
     rationale: applicant.coverLetter?.trim()
       ? applicant.coverLetter.trim()
-      : 'Application submitted through TalentPortal.',
+      : 'Application submitted through Wayfare Global.',
     summary: applicant.headline || `${name} applied for ${applicant.jobTitle}.`,
     notes: '',
     email: applicant.email,
@@ -221,7 +221,7 @@ export function Recruiter() {
       .then((res) => {
         setDepartments(res.departments || []);
         const orgName = res.corporateStructure?.name;
-        if (orgName && orgName !== 'TalentPortal Holding' && user?.organizationName !== orgName) {
+        if (orgName && orgName !== 'Wayfare Global Holding' && orgName !== 'TalentPortal Holding' && user?.organizationName !== orgName) {
           updateProfile({ organizationName: orgName });
         }
       })
@@ -666,7 +666,7 @@ function CreateJobModal({
 
       recruiterApi.getDepartments().then((res) => {
         setDepartments(res.departments || []);
-        if (res.corporateStructure?.name && res.corporateStructure.name !== 'TalentPortal Holding') {
+        if (res.corporateStructure?.name && res.corporateStructure.name !== 'Wayfare Global Holding' && res.corporateStructure.name !== 'TalentPortal Holding') {
           setPostedBy(res.corporateStructure.name);
         }
       }).catch((err) => {

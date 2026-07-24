@@ -161,7 +161,7 @@ namespace backend.Services
             var modelName = string.IsNullOrWhiteSpace(_settings.Model) ? "gpt-4o-mini" : _settings.Model;
             var client = _httpClientFactory.CreateClient("OpenAI");
 
-            var systemPrompt = @"You are a high-performance recruiter assistant AI inside TalentPortal AI.
+            var systemPrompt = @"You are a high-performance recruiter assistant AI inside Wayfare AI.
 Your task is to analyze the candidate's resume text and extract all profile details in a structured JSON format.
 
 Make sure to extract:
@@ -331,6 +331,7 @@ Rule: Your reply MUST be a single, valid JSON object matching this schema. Do no
                 return _settings.ApiKey.Trim();
 
             return Environment.GetEnvironmentVariable("OPENAI_API_KEY")
+                ?? Environment.GetEnvironmentVariable("Wayfare_OpenAI__ApiKey")
                 ?? Environment.GetEnvironmentVariable("TalentPortal_OpenAI__ApiKey")
                 ?? string.Empty;
         }

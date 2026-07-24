@@ -741,7 +741,7 @@ namespace backend.Services
                         : j.RequiredSkills.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
                 }).ToList();
 
-                var systemPrompt = @"You are a high-performance recruiter assistant AI inside TalentPortal AI.
+                var systemPrompt = @"You are a high-performance recruiter assistant AI inside Wayfare Global.
 Compare the candidate's profile with the list of active job postings.
 For each job, calculate:
 1. matchScore: an integer from 0 to 100 representing how well their skills, title, and work history align with the job posting requirements.
@@ -851,6 +851,7 @@ Example structure:
                 return _openAiSettings.ApiKey.Trim();
 
             return Environment.GetEnvironmentVariable("OPENAI_API_KEY")
+                ?? Environment.GetEnvironmentVariable("Wayfare_OpenAI__ApiKey")
                 ?? Environment.GetEnvironmentVariable("TalentPortal_OpenAI__ApiKey")
                 ?? string.Empty;
         }

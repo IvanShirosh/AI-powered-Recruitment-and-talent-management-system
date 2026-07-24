@@ -743,17 +743,8 @@ export interface HiringManager {
   departmentName?: string | null;
 }
 
-export interface HiringManagerInvitation {
-  id: string;
-  email: string;
-  sentAt: string;
-  expiresAt: string;
-  isExpired: boolean;
-}
-
 export interface RecruiterHiringManagersResponse {
   hiringManagers: HiringManager[];
-  pendingInvitations: HiringManagerInvitation[];
 }
 
 export interface BusySlot {

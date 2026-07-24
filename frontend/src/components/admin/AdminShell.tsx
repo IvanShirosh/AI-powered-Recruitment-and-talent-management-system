@@ -222,7 +222,7 @@ export function AdminShell({
                             {user?.name || 'System Admin'}
                           </p>
                           <p className="truncate text-xs text-slate-500">
-                            {user?.email || 'admin@talentportal.com'}
+                            {user?.email || 'admin@wayfareglobal.com'}
                           </p>
                         </div>
                         <div className="my-1 h-px bg-slate-100" />

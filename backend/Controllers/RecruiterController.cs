@@ -71,7 +71,7 @@ namespace backend.Controllers
             {
                 return NotFound(new { message = ex.Message });
             }
-            catch (UnauthorizedAccessException ex)
+            catch (UnauthorizedAccessException)
             {
                 return Forbid();
             }
@@ -81,62 +81,7 @@ namespace backend.Controllers
             }
         }
 
-        [HttpPost("hiring-managers/invitations/{id:guid}/resend")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> ResendInvite(Guid id)
-        {
-            var recruiterId = GetRecruiterId();
-            if (recruiterId == null)
-                return Unauthorized(new { message = "Invalid session. Please log in again." });
 
-            var frontendBase = _config["FrontendBaseUrl"] ?? "http://localhost:5173";
-
-            try
-            {
-                var message = await _recruiterService.ResendInvitationAsync(id, recruiterId.Value, frontendBase);
-                return Ok(new { message });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid();
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        [HttpDelete("hiring-managers/invitations/{id:guid}/revoke")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> RevokeInvite(Guid id)
-        {
-            var recruiterId = GetRecruiterId();
-            if (recruiterId == null)
-                return Unauthorized(new { message = "Invalid session. Please log in again." });
-
-            try
-            {
-                await _recruiterService.RevokeInvitationAsync(id, recruiterId.Value);
-                return Ok(new { message = "Invitation revoked successfully." });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid();
-            }
-        }
 
         [HttpGet("hiring-managers/{id:guid}/availability")]
         [ProducesResponseType(typeof(System.Collections.Generic.List<BusySlotDto>), StatusCodes.Status200OK)]
@@ -226,7 +171,7 @@ namespace backend.Controllers
 
             var orgName = recruiter?.Organization?.Name
                 ?? recruiter?.OrganizationName
-                ?? "TalentPortal";
+                ?? "Wayfare Global";
 
             var htmlBody = $@"
                 <div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;border:1px solid #e2e8f0;border-radius:16px;background:#ffffff;'>
@@ -241,7 +186,7 @@ namespace backend.Controllers
                     {(string.IsNullOrWhiteSpace(dto.JobTitle) ? "" : $"<p style='color:#475569;font-size:14px;margin-top:16px;'>Regarding: <strong>{System.Web.HttpUtility.HtmlEncode(dto.JobTitle)}</strong></p>")}
                     <hr style='border:0;border-top:1px solid #e2e8f0;margin:24px 0;'/>
                     <p style='color:#64748b;font-size:13px;margin:0;'>
-                        This message was sent via <strong>TalentPortal AI</strong> by {System.Web.HttpUtility.HtmlEncode(recruiterName)} at {System.Web.HttpUtility.HtmlEncode(orgName)}.
+                        This message was sent via <strong>Wayfare AI</strong> by {System.Web.HttpUtility.HtmlEncode(recruiterName)} at {System.Web.HttpUtility.HtmlEncode(orgName)}.
                         Please reply directly to this email to respond.
                     </p>
                 </div>";

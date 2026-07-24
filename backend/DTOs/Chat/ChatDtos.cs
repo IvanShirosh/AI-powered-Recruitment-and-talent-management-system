@@ -52,6 +52,6 @@ namespace backend.DTOs.Chat
     {
         public List<string> Suggestions { get; set; } = [];
         public string Greeting { get; set; } = string.Empty;
-        public string AssistantName { get; set; } = "TalentPortal AI";
+        public string AssistantName { get; set; } = "Wayfare AI";
     }
 }

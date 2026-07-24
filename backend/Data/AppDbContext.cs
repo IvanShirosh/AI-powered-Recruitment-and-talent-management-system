@@ -13,7 +13,6 @@ namespace backend.Data
         public DbSet<GlobalPolicy> GlobalPolicies { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
-        public DbSet<HiringManagerInvitation> HiringManagerInvitations { get; set; }
         public DbSet<JobPosting> JobPostings { get; set; }
 
        
@@ -245,15 +244,7 @@ namespace backend.Data
                 entity.HasIndex(j => j.CreatedByRecruiterId);
             });
 
-           
-            modelBuilder.Entity<HiringManagerInvitation>(entity =>
-            {
-                entity.HasKey(i => i.Id);
-                entity.HasIndex(i => i.Token).IsUnique();
-                entity.Property(i => i.Token).IsRequired().HasMaxLength(100);
-                entity.Property(i => i.InvitedEmail).IsRequired().HasMaxLength(256);
-                entity.Property(i => i.OrganizationName).IsRequired().HasMaxLength(200);
-            });
+
 
            
             modelBuilder.Entity<ChatConversation>(entity =>

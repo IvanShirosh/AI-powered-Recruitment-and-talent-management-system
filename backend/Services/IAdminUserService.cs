@@ -13,10 +13,5 @@ namespace backend.Services
         Task<bool> ToggleUserActiveAsync(Guid id);
         Task DeleteUserAsync(Guid id);
         Task ResetUserPasswordAsync(Guid id, string newPassword);
-
-        // Recruiter approval workflow
-        Task<List<PendingRecruiterDto>> GetPendingRecruitersAsync();
-        Task ApproveRecruiterAsync(Guid id);
-        Task RejectRecruiterAsync(Guid id);
     }
 }

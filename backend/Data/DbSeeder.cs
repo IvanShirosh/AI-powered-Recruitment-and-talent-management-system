@@ -12,7 +12,6 @@ namespace backend.Data
             await db.Database.ExecuteSqlRawAsync("IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[Departments]') AND name = 'OrganizationName') BEGIN ALTER TABLE [dbo].[Departments] ADD [OrganizationName] NVARCHAR(MAX) NULL; END");
             await db.Database.ExecuteSqlRawAsync("IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[JobApplications]') AND name = 'Feedback') BEGIN ALTER TABLE [dbo].[JobApplications] ADD [Feedback] NVARCHAR(2000) NULL; END");
             await db.Database.ExecuteSqlRawAsync("IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[JobApplications]') AND name = 'Recommendation') BEGIN ALTER TABLE [dbo].[JobApplications] ADD [Recommendation] NVARCHAR(50) NULL; END");
-            await db.Database.ExecuteSqlRawAsync("IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[HiringManagerInvitations]') AND name = 'DepartmentId') BEGIN ALTER TABLE [dbo].[HiringManagerInvitations] ADD [DepartmentId] UNIQUEIDENTIFIER NULL; END");
             await db.Database.ExecuteSqlRawAsync("IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[JobApplications]') AND name = 'OverallRating') BEGIN ALTER TABLE [dbo].[JobApplications] ADD [OverallRating] INT NULL; END");
             await db.Database.ExecuteSqlRawAsync("IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[JobApplications]') AND name = 'SkillRatings') BEGIN ALTER TABLE [dbo].[JobApplications] ADD [SkillRatings] NVARCHAR(MAX) NULL; END");
             await db.Database.ExecuteSqlRawAsync("IF OBJECT_ID(N'[dbo].[Interviews]', N'U') IS NOT NULL AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[Interviews]') AND name = 'RescheduleRequested') BEGIN ALTER TABLE [dbo].[Interviews] ADD [RescheduleRequested] BIT NOT NULL CONSTRAINT DF_Interviews_RescheduleRequested DEFAULT(0); END");
@@ -162,7 +161,7 @@ namespace backend.Data
                 Id = new Guid("a1b2c3d4-e5f6-7890-abcd-ef1234567890"),
                 FirstName = "System",
                 LastName = "Administrator",
-                Email = "admin@talentportal.com",
+                Email = "admin@wayfareglobal.com",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@12345"),
                 Role = UserRole.Admin,
                 Status = UserStatus.Active,
@@ -174,7 +173,7 @@ namespace backend.Data
             db.Users.Add(admin);
             await db.SaveChangesAsync();
 
-            Console.WriteLine("Admin account seeded: admin@talentportal.com");
+            Console.WriteLine("Admin account seeded: admin@wayfareglobal.com");
         }
 
         private static async Task SeedDepartmentDashboardAsync(AppDbContext db)
@@ -299,77 +298,7 @@ namespace backend.Data
             Console.WriteLine("Roles and default permissions seeded.");
         }
 
-        private static async Task SeedDemoAccountsAsync(AppDbContext db)
-        {
-            // Seed Recruiter
-            if (!await db.Users.AnyAsync(u => u.Email == "recruiter@talentportal.com"))
-            {
-                var recruiter = new User
-                {
-                    FirstName = "Olivia",
-                    LastName = "Park",
-                    Email = "recruiter@talentportal.com",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Recruiter@12345"),
-                    Role = UserRole.Recruiter,
-                    Status = UserStatus.Active,
-                    OrganizationName = "Northwind Labs",
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-                db.Users.Add(recruiter);
-                Console.WriteLine("Recruiter account seeded: recruiter@talentportal.com");
-            }
 
-            // Seed Hiring Manager
-            if (!await db.Users.AnyAsync(u => u.Email == "manager@talentportal.com"))
-            {
-                var manager = new User
-                {
-                    FirstName = "Samantha",
-                    LastName = "Reed",
-                    Email = "manager@talentportal.com",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Manager@12345"),
-                    Role = UserRole.HiringManager,
-                    Status = UserStatus.Active,
-                    OrganizationName = "Northwind Labs",
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-                db.Users.Add(manager);
-                Console.WriteLine("Hiring Manager account seeded: manager@talentportal.com");
-            }
-
-            // Seed Demo Candidate
-            if (!await db.Users.AnyAsync(u => u.Email == "alex.morgan@example.com"))
-            {
-                var candidate = new User
-                {
-                    FirstName = "Alex",
-                    LastName = "Morgan",
-                    Email = "alex.morgan@example.com",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("demo1234"),
-                    Role = UserRole.Candidate,
-                    Status = UserStatus.Active,
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-                db.Users.Add(candidate);
-
-                var profile = new CandidateProfile
-                {
-                    UserId = candidate.Id,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-                db.CandidateProfiles.Add(profile);
-                Console.WriteLine("Demo Candidate account seeded: alex.morgan@example.com");
-            }
-
-            await db.SaveChangesAsync();
-        }
 
         private static async Task SeedAuditLogsAsync(AppDbContext db)
         {

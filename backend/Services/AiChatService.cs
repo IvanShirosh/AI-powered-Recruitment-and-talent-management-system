@@ -300,6 +300,7 @@ namespace backend.Services
                 return _settings.ApiKey.Trim();
 
             return Environment.GetEnvironmentVariable("OPENAI_API_KEY")
+                ?? Environment.GetEnvironmentVariable("Wayfare_OpenAI__ApiKey")
                 ?? Environment.GetEnvironmentVariable("TalentPortal_OpenAI__ApiKey")
                 ?? string.Empty;
         }
@@ -322,7 +323,7 @@ namespace backend.Services
                 Role: {roleLabel}
 
                 You can answer ANY question the user asks — general knowledge, advice, brainstorming, writing help, explanations, or Wayfare Global how-tos.
-                When the topic relates to recruiting, careers, or this product, prioritize practical TalentPortal guidance:
+                When the topic relates to recruiting, careers, or this product, prioritize practical Wayfare Global guidance:
                 - Candidates: profile, resume, jobs, applications, cover notes, dashboard
                 - Recruiters: create/publish jobs, applicants, hiring-manager invites, departments
                 - Hiring managers: candidate review, interview feedback, calendar
@@ -332,7 +333,7 @@ namespace backend.Services
                 - Always reply helpfully to the user's actual message (never ignore it).
                 - Be clear, warm, and professional. Use short paragraphs or numbered steps when useful.
                 - Never invent private user data or claim you changed database records.
-                - If a task requires the UI, explain exactly where to click in TalentPortal.
+                - If a task requires the UI, explain exactly where to click in Wayfare Global.
                 """;
         }
 
@@ -411,13 +412,13 @@ namespace backend.Services
             // Default: always acknowledge and respond to the actual message
             return $"Got it — you said: \"{Truncate(raw, 220)}\".\n\n" +
                    $"{ContinueConversation(role, q)}\n\n" +
-                   "Ask me anything else — careers, TalentPortal steps, writing help, or general questions.";
+                   "Ask me anything else — careers, Wayfare Global steps, writing help, or general questions.";
         }
 
         private static string AnswerQuestion(UserRole role, string raw, string q)
         {
             if (q.Contains("who are you") || q.Contains("what are you") || q.Contains("your name"))
-                return "I'm TalentPortal AI, your in-app assistant. I can help with this hiring platform and also answer general questions, brainstorm, or help you write.";
+                return "I'm Wayfare AI, your in-app assistant. I can help with this hiring platform and also answer general questions, brainstorm, or help you write.";
 
             if (q.Contains("help"))
             {
@@ -442,13 +443,13 @@ namespace backend.Services
         private static string ContinueConversation(UserRole role, string q)
         {
             if (q.Contains("salary") || q.Contains("pay") || q.Contains("compensation"))
-                return "For compensation, compare market ranges for the role/location, be transparent when posting jobs, and for candidates negotiate with evidence (skills, impact, competing offers). On TalentPortal, salary can be set when creating a job.";
+                return "For compensation, compare market ranges for the role/location, be transparent when posting jobs, and for candidates negotiate with evidence (skills, impact, competing offers). On Wayfare Global, salary can be set when creating a job.";
 
             if (q.Contains("interview"))
                 return "Strong interviews are structured: same core questions per candidate, score against the job criteria, and capture feedback quickly. Hiring managers can leave feedback in their workspace; recruiters can move stages from the applicants list.";
 
             if (q.Contains("skill") || q.Contains("learn") || q.Contains("career"))
-                return "Focus on skills that match the roles you want, show proof (projects/outcomes), and keep your TalentPortal profile skills list current so matching stays accurate.";
+                return "Focus on skills that match the roles you want, show proof (projects/outcomes), and keep your Wayfare Global profile skills list current so matching stays accurate.";
 
             if (q.Contains("joke") || q.Contains("funny"))
                 return "Why did the recruiter bring a ladder to the interview? To help the candidate reach the next level. Want another, or shall we get back to hiring?";
@@ -456,7 +457,7 @@ namespace backend.Services
             return role switch
             {
                 UserRole.Recruiter =>
-                    "From a recruiting angle, clarify the outcome you want (source, screen, schedule, or hire) and I can give concrete next steps in TalentPortal.",
+                    "From a recruiting angle, clarify the outcome you want (source, screen, schedule, or hire) and I can give concrete next steps in Wayfare Global.",
                 UserRole.HiringManager =>
                     "As a hiring manager, the fastest path is usually: review the shortlist, leave clear feedback, and confirm next interview steps with your recruiter.",
                 UserRole.Admin =>

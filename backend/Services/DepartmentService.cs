@@ -26,7 +26,7 @@ namespace backend.Services
             var orgDto = new OrganizationDto
             {
                 Id = userOrgId ?? Guid.Empty,
-                Name = !string.IsNullOrEmpty(activeOrgName) ? activeOrgName : "TalentPortal Holding",
+                Name = !string.IsNullOrEmpty(activeOrgName) ? activeOrgName : "Wayfare Global Holding",
                 Sub = !string.IsNullOrEmpty(activeOrgName) ? "Internal Entity" : "Principal Entity"
             };
 

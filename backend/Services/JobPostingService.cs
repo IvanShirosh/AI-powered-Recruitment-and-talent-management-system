@@ -459,7 +459,7 @@ namespace backend.Services
                                 <p style='color: #334155; font-size: 14px;'>Welcome aboard! We look forward to working together.</p>
                             </div>
                             <div style='border-top: 1px solid #f1f5f9; padding-top: 16px; text-align: center; color: #94a3b8; font-size: 12px;'>
-                                <p style='margin: 0;'>This is an automated notification from TalentPortal.</p>
+                                <p style='margin: 0;'>This is an automated notification from Wayfare Global.</p>
                             </div>
                         </div>";
 
@@ -747,11 +747,9 @@ namespace backend.Services
                 throw new KeyNotFoundException("Hiring manager user not found.");
 
             var departments = await GetManagerDepartmentIdsAsync(manager);
+            var managerOrgName = (manager.Organization?.Name ?? manager.OrganizationName)?.Trim().ToLower();
 
-            if (departments.Count == 0)
-                return new List<JobApplicantDto>();
-
-            var applications = await _db.JobApplications
+            var allApplications = await _db.JobApplications
                 .AsSplitQuery()
                 .Include(a => a.JobPosting)
                     .ThenInclude(j => j.Department)
@@ -764,11 +762,20 @@ namespace backend.Services
                 .Include(a => a.CandidateProfile)
                     .ThenInclude(cp => cp.Educations)
                 .Include(a => a.Interviews)
-                .Where(a => a.JobPosting.DepartmentId != null &&
-                            departments.Contains(a.JobPosting.DepartmentId.Value) &&
-                            a.Status != ApplicationStatus.Applied)
+                .Where(a => a.Status != ApplicationStatus.Applied)
                 .OrderByDescending(a => a.AppliedAt)
                 .ToListAsync();
+
+            var applications = allApplications.Where(a =>
+            {
+                if (a.JobPosting == null) return false;
+                var postingDeptId = a.JobPosting.DepartmentId;
+                var isDeptMatch = postingDeptId.HasValue && departments.Contains(postingDeptId.Value);
+                var postingOrgName = a.JobPosting.PostedBy?.Trim().ToLower();
+                var isOrgMatch = !string.IsNullOrEmpty(managerOrgName) && !string.IsNullOrEmpty(postingOrgName) &&
+                    managerOrgName == postingOrgName;
+                return isDeptMatch || isOrgMatch || departments.Count == 0;
+            }).ToList();
 
             var aiScores = new Dictionary<Guid, int>();
             if (includeAiScores)
@@ -814,12 +821,30 @@ namespace backend.Services
                     .ThenInclude(cp => cp.Experiences)
                 .Include(a => a.CandidateProfile)
                     .ThenInclude(cp => cp.Skills)
+                .Include(a => a.Interviews)
                 .FirstOrDefaultAsync(a => a.Id == applicationId);
 
             if (application == null)
                 throw new KeyNotFoundException("Application not found.");
 
-            if (application.JobPosting.DepartmentId == null || !departments.Contains(application.JobPosting.DepartmentId.Value))
+            var posting = application.JobPosting;
+            var managerFullName = manager.FullName.Trim().ToLower();
+            var managerAltName = $"{manager.FirstName} {manager.LastName}".Trim().ToLower();
+            var managerEmail = manager.Email.Trim().ToLower();
+            var managerOrgName = (manager.Organization?.Name ?? manager.OrganizationName)?.Trim().ToLower();
+            var postingOrgName = posting?.PostedBy?.Trim().ToLower();
+
+            var isAssignedInterviewer = application.Interviews != null && application.Interviews.Any(i =>
+                !string.IsNullOrWhiteSpace(i.InterviewerName) &&
+                (i.InterviewerName.Trim().ToLower() == managerFullName ||
+                 i.InterviewerName.Trim().ToLower() == managerAltName ||
+                 i.InterviewerName.Trim().ToLower() == managerEmail));
+
+            var isDeptMatch = posting?.DepartmentId != null && departments.Contains(posting.DepartmentId.Value);
+            var isOrgMatch = !string.IsNullOrEmpty(managerOrgName) && !string.IsNullOrEmpty(postingOrgName) &&
+                managerOrgName == postingOrgName;
+
+            if (!isAssignedInterviewer && !isDeptMatch && !isOrgMatch && departments.Count > 0)
                 throw new UnauthorizedAccessException("You are not authorized to review this application.");
 
            
@@ -865,7 +890,24 @@ namespace backend.Services
             if (application == null)
                 throw new KeyNotFoundException("Application not found.");
 
-            if (application.JobPosting.DepartmentId == null || !departments.Contains(application.JobPosting.DepartmentId.Value))
+            var posting = application.JobPosting;
+            var managerFullName = manager.FullName.Trim().ToLower();
+            var managerAltName = $"{manager.FirstName} {manager.LastName}".Trim().ToLower();
+            var managerEmail = manager.Email.Trim().ToLower();
+            var managerOrgName = (manager.Organization?.Name ?? manager.OrganizationName)?.Trim().ToLower();
+            var postingOrgName = posting?.PostedBy?.Trim().ToLower();
+
+            var isAssignedInterviewer = application.Interviews != null && application.Interviews.Any(i =>
+                !string.IsNullOrWhiteSpace(i.InterviewerName) &&
+                (i.InterviewerName.Trim().ToLower() == managerFullName ||
+                 i.InterviewerName.Trim().ToLower() == managerAltName ||
+                 i.InterviewerName.Trim().ToLower() == managerEmail));
+
+            var isDeptMatch = posting?.DepartmentId != null && departments.Contains(posting.DepartmentId.Value);
+            var isOrgMatch = !string.IsNullOrEmpty(managerOrgName) && !string.IsNullOrEmpty(postingOrgName) &&
+                managerOrgName == postingOrgName;
+
+            if (!isAssignedInterviewer && !isDeptMatch && !isOrgMatch && departments.Count > 0)
                 throw new UnauthorizedAccessException("You are not authorized to manage this application.");
 
             ApplicationStatus targetStatus;
@@ -943,7 +985,7 @@ namespace backend.Services
                                     </div>
                                     <div style='border-top: 1px solid #f1f5f9; padding-top: 20px; text-align: center;'>
                                         <p style='font-size: 14px; color: #64748b; margin: 0;'>Best regards,<br/><strong style='color: #0f172a;'>{orgName}</strong></p>
-                                        <p style='color: #94a3b8; font-size: 12px; margin-top: 16px;'>This is an automated decision notification from TalentPortal.</p>
+                                        <p style='color: #94a3b8; font-size: 12px; margin-top: 16px;'>This is an automated decision notification from Wayfare Global.</p>
                                     </div>
                                 </div>";
                             await _emailService.SendEmailAsync(candidateEmail, subject, body);
@@ -981,7 +1023,7 @@ namespace backend.Services
                                     </div>
                                     <div style='border-top: 1px solid #f1f5f9; padding-top: 20px; text-align: center;'>
                                         <p style='font-size: 14px; color: #64748b; margin: 0;'>Best regards,<br/><strong style='color: #0f172a;'>{orgName}</strong></p>
-                                        <p style='color: #94a3b8; font-size: 12px; margin-top: 16px;'>This is an automated decision notification from TalentPortal.</p>
+                                        <p style='color: #94a3b8; font-size: 12px; margin-top: 16px;'>This is an automated decision notification from Wayfare Global.</p>
                                     </div>
                                 </div>";
                             await _emailService.SendEmailAsync(candidateEmail, subject, body);
@@ -1127,28 +1169,35 @@ namespace backend.Services
         public async Task<List<InterviewDto>> GetManagerInterviewsAsync(Guid managerUserId)
         {
             var manager = await _db.Users
-                .Include(u => u.Organization)
-                .Include(u => u.Department)
                 .FirstOrDefaultAsync(u => u.Id == managerUserId);
 
             if (manager == null || manager.Role != UserRole.HiringManager)
                 throw new KeyNotFoundException("Hiring manager user not found.");
 
-            var departments = await GetManagerDepartmentIdsAsync(manager);
+            var managerFullName = manager.FullName.Trim().ToLower();
+            var managerAltName = $"{manager.FirstName} {manager.LastName}".Trim().ToLower();
+            var managerEmail = manager.Email.Trim().ToLower();
 
-            if (departments.Count == 0)
-                return [];
-
-            var interviews = await _db.Interviews
+            var allInterviews = await _db.Interviews
                 .Include(i => i.JobApplication)
                     .ThenInclude(a => a.JobPosting)
                 .Include(i => i.JobApplication)
                     .ThenInclude(a => a.CandidateProfile)
                         .ThenInclude(cp => cp.User)
-                .Where(i => i.JobApplication.JobPosting.DepartmentId != null &&
-                            departments.Contains(i.JobApplication.JobPosting.DepartmentId.Value))
                 .OrderBy(i => i.ScheduledAt)
                 .ToListAsync();
+
+            var interviews = allInterviews.Where(i =>
+            {
+                if (i.JobApplication?.JobPosting == null) return false;
+
+                var interviewer = i.InterviewerName?.Trim().ToLower();
+                if (string.IsNullOrEmpty(interviewer)) return false;
+
+                return interviewer == managerFullName ||
+                       interviewer == managerAltName ||
+                       interviewer == managerEmail;
+            }).ToList();
 
             return interviews
                 .Where(i => i.JobApplication?.CandidateProfile?.User != null)
@@ -1221,14 +1270,15 @@ namespace backend.Services
         public async Task<InterviewDto> RequestRescheduleAsync(
             Guid interviewId, string? reason, Guid managerUserId)
         {
-            var manager = await _db.Users.FindAsync(managerUserId);
+            var manager = await _db.Users
+                .Include(u => u.Organization)
+                .Include(u => u.Department)
+                .FirstOrDefaultAsync(u => u.Id == managerUserId);
+
             if (manager == null || manager.Role != UserRole.HiringManager)
                 throw new KeyNotFoundException("Hiring manager user not found.");
 
-            var departments = await _db.Departments
-                .Where(d => d.Head == manager.FullName && d.OrganizationName == manager.OrganizationName)
-                .Select(d => d.Id)
-                .ToListAsync();
+
 
             var interview = await _db.Interviews
                 .Include(i => i.JobApplication)
@@ -1240,7 +1290,15 @@ namespace backend.Services
                 ?? throw new KeyNotFoundException("Interview not found.");
 
             var posting = interview.JobApplication.JobPosting;
-            if (posting.DepartmentId == null || !departments.Contains(posting.DepartmentId.Value))
+            var managerFullName = manager.FullName.Trim().ToLower();
+            var managerAltName = $"{manager.FirstName} {manager.LastName}".Trim().ToLower();
+            var managerEmail = manager.Email.Trim().ToLower();
+            var interviewer = interview.InterviewerName?.Trim().ToLower();
+
+            var isAssignedInterviewer = !string.IsNullOrWhiteSpace(interviewer) &&
+                (interviewer == managerFullName || interviewer == managerAltName || interviewer == managerEmail);
+
+            if (!isAssignedInterviewer)
                 throw new UnauthorizedAccessException("You are not authorized to reschedule this interview.");
 
             interview.RescheduleRequested = true;
@@ -1382,7 +1440,7 @@ namespace backend.Services
             if (manager.Role != UserRole.HiringManager)
                 throw new UnauthorizedAccessException("Only hiring managers can submit interview feedback.");
 
-            var departments = await GetManagerDepartmentIdsAsync(manager);
+
 
             var interview = await _db.Interviews
                 .Include(i => i.JobApplication)
@@ -1394,7 +1452,15 @@ namespace backend.Services
                 ?? throw new KeyNotFoundException("Interview not found.");
 
             var posting = interview.JobApplication.JobPosting;
-            if (posting.DepartmentId == null || !departments.Contains(posting.DepartmentId.Value))
+            var managerFullName = manager.FullName.Trim().ToLower();
+            var managerAltName = $"{manager.FirstName} {manager.LastName}".Trim().ToLower();
+            var managerEmail = manager.Email.Trim().ToLower();
+            var interviewer = interview.InterviewerName?.Trim().ToLower();
+
+            var isAssignedInterviewer = !string.IsNullOrWhiteSpace(interviewer) &&
+                (interviewer == managerFullName || interviewer == managerAltName || interviewer == managerEmail);
+
+            if (!isAssignedInterviewer)
                 throw new UnauthorizedAccessException("You are not authorized to submit feedback for this interview.");
 
             var application = interview.JobApplication;
@@ -1473,7 +1539,7 @@ namespace backend.Services
                     response_format = new { type = "json_object" },
                     messages = new[]
                     {
-                        new { role = "system", content = @"You are a recruiter AI inside TalentPortal AI.
+                        new { role = "system", content = @"You are a recruiter AI inside Wayfare AI.
 For each candidate, calculate matchScore (0-100) based on how well their skills, title, work history, and experience match the job title, description, and required skills.
 Return ONLY a valid JSON object: {""scores"":[{""applicationId"":""<guid>"",""matchScore"":92}]}. No markdown." },
                         new { role = "user", content = $"Job Title: {job.Title}\nJob Description: {job.Description}\nRequired Skills: {job.RequiredSkills}\n\nCandidates:\n{JsonSerializer.Serialize(candidatesList)}" }
@@ -1663,7 +1729,7 @@ Return ONLY a valid JSON object: {""scores"":[{""applicationId"":""<guid>"",""ma
 
             var recruiter = await _db.Users.FirstOrDefaultAsync(u => u.Id == recruiterId);
             var recruiterName = recruiter != null ? $"{recruiter.FirstName} {recruiter.LastName}" : "Recruiter";
-            var recruiterEmail = recruiter?.Email ?? "recruiter@talentportal.com";
+            var recruiterEmail = recruiter?.Email ?? "recruiter@wayfareglobal.com";
 
             string candidateName = application?.CandidateProfile?.User != null 
                 ? $"{application.CandidateProfile.User.FirstName} {application.CandidateProfile.User.LastName}" 
@@ -1681,7 +1747,7 @@ Return ONLY a valid JSON object: {""scores"":[{""applicationId"":""<guid>"",""ma
                 await _emailService.SendEmailAsync(
                     candidateEmail,
                     dto.Subject.Trim(),
-                    $"<p>Dear {candidateName},</p><p>{dto.Body.Replace("\n", "<br/>")}</p><hr/><p>Sent by {recruiterName} ({recruiterEmail}) via TalentPortal.</p>"
+                    $"<p>Dear {candidateName},</p><p>{dto.Body.Replace("\n", "<br/>")}</p><hr/><p>Sent by {recruiterName} ({recruiterEmail}) via Wayfare Global.</p>"
                 );
             }
             catch (Exception ex)
@@ -1775,6 +1841,7 @@ Return ONLY a valid JSON object: {""scores"":[{""applicationId"":""<guid>"",""ma
                 return _openAiSettings.ApiKey.Trim();
 
             return Environment.GetEnvironmentVariable("OPENAI_API_KEY")
+                ?? Environment.GetEnvironmentVariable("Wayfare_OpenAI__ApiKey")
                 ?? Environment.GetEnvironmentVariable("TalentPortal_OpenAI__ApiKey")
                 ?? string.Empty;
         }

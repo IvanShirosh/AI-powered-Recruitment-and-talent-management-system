@@ -98,22 +98,9 @@ namespace backend.Services
                 };
             }).ToList();
 
-            var pendingInvites = await _db.HiringManagerInvitations
-                .Where(i => i.OrganizationName == orgName && !i.IsUsed)
-                .OrderByDescending(i => i.CreatedAt)
-                .Select(i => new HiringManagerInvitationDto
-                {
-                    Id = i.Id,
-                    Email = i.InvitedEmail,
-                    SentAt = i.CreatedAt,
-                    ExpiresAt = i.ExpiresAt
-                })
-                .ToListAsync();
-
             return new RecruiterHiringManagersResponseDto
             {
-                HiringManagers = managers,
-                PendingInvitations = pendingInvites
+                HiringManagers = managers
             };
         }
 
@@ -140,57 +127,7 @@ namespace backend.Services
             return manager.IsActive;
         }
 
-        public async Task<string> ResendInvitationAsync(Guid invitationId, Guid recruiterId, string frontendBaseUrl)
-        {
-            var recruiter = await GetRecruiterOrThrowAsync(recruiterId);
-            var orgName = recruiter.OrganizationName ?? recruiter.Organization?.Name ?? recruiter.FullName;
 
-            var invite = await _db.HiringManagerInvitations.FindAsync(invitationId)
-                ?? throw new KeyNotFoundException("Invitation not found.");
-
-            if (invite.OrganizationName != orgName)
-                throw new UnauthorizedAccessException("You do not have permission to manage invitations for other organizations.");
-
-            if (invite.IsUsed)
-                throw new InvalidOperationException("This invitation has already been used and cannot be resent.");
-
-            // Refresh token and expiry details
-            invite.Token = Guid.NewGuid().ToString("N");
-            invite.ExpiresAt = DateTime.UtcNow.AddDays(7);
-            await _db.SaveChangesAsync();
-
-            var joinLink = $"{frontendBaseUrl.TrimEnd('/')}/accept-invite?token={invite.Token}";
-
-            var emailBody = $@"
-                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-                    <h2 style='color: #4f46e5;'>Invitation to Join {orgName}</h2>
-                    <p>You have been re-invited by <strong>{recruiter.FullName}</strong> to join <strong>{orgName}</strong> as a Hiring Manager.</p>
-                    <p>Click the link below to accept your invitation and set up your account:</p>
-                    <div style='margin: 24px 0;'>
-                        <a href='{joinLink}' style='background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;'>Accept Invitation</a>
-                    </div>
-                    <p style='color: #6b7280; font-size: 14px;'>This link will expire in 7 days.</p>
-                </div>";
-
-            await _emailService.SendEmailAsync(invite.InvitedEmail, $"Reminder: You've been invited to join {orgName} as a Hiring Manager", emailBody);
-
-            return joinLink;
-        }
-
-        public async Task RevokeInvitationAsync(Guid invitationId, Guid recruiterId)
-        {
-            var recruiter = await GetRecruiterOrThrowAsync(recruiterId);
-            var orgName = recruiter.OrganizationName ?? recruiter.Organization?.Name ?? recruiter.FullName;
-
-            var invite = await _db.HiringManagerInvitations.FindAsync(invitationId)
-                ?? throw new KeyNotFoundException("Invitation not found.");
-
-            if (invite.OrganizationName != orgName)
-                throw new UnauthorizedAccessException("You do not have permission to delete invitations for other organizations.");
-
-            _db.HiringManagerInvitations.Remove(invite);
-            await _db.SaveChangesAsync();
-        }
 
         public async Task<List<BusySlotDto>> GetHiringManagerAvailabilityAsync(Guid managerId, Guid recruiterId)
         {

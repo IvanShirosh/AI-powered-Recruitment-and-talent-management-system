@@ -122,7 +122,7 @@ export function ProfilePanel() {
         resumeName: file.name
       });
       
-      setParseProgress('TalentPortal AI is structuring experiences and skills...');
+      setParseProgress('Wayfare AI is structuring experiences and skills...');
       setParsedData(res.data);
       setShowParseModal(true);
     } catch (err) {
@@ -892,7 +892,7 @@ export function ProfilePanel() {
           <p className="mt-2 text-sm text-brand-200 animate-pulse">{parseProgress}</p>
           <div className="mt-6 flex max-w-xs flex-col gap-2 rounded-xl bg-slate-900 border border-slate-800 p-4 text-center">
             <p className="text-xs text-slate-400">
-              TalentPortal AI is scanning your pages, extracting key skills, and aligning your work experience. This might take up to 10 seconds.
+              Wayfare AI is scanning your pages, extracting key skills, and aligning your work experience. This might take up to 10 seconds.
             </p>
           </div>
         </div>
@@ -919,7 +919,7 @@ export function ProfilePanel() {
                       AI Resume Extraction Preview
                     </h3>
                     <p className="text-xs text-slate-500">
-                      Review and adjust the profile details extracted by TalentPortal AI.
+                      Review and adjust the profile details extracted by Wayfare AI.
                     </p>
                   </div>
                 </div>
